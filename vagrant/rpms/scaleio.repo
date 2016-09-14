@@ -1,0 +1,6 @@
+[scaleio]
+name=ScaleIO
+baseurl=file:///root/rpms
+gpgcheck=0
+enabled=1
+

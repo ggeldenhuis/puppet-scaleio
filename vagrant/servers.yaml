@@ -1,0 +1,26 @@
+---
+- name: mdm01.example.com
+  box: puppetlabs/centos-7.2-64-puppet
+  ram: 1024
+  private_ip: 172.1.0.2
+  cpu_count: 1
+  provision_script: puppetserver.sh
+- name: mdm02.example.com
+  box: puppetlabs/centos-7.2-64-puppet
+  ram: 1024
+  private_ip: 172.1.0.3
+  cpu_count: 1
+  provision_script: nothing.sh
+- name: tb01.example.com
+  box: puppetlabs/centos-7.2-64-puppet
+  ram: 1024
+  private_ip: 172.1.0.4
+  cpu_count: 1
+  provision_script: nothing.sh
+#- name: mdm03.example.com
+#  box: puppetlabs/centos-7.2-64-puppet
+#  ram: 1024
+#  private_ip: 172.1.0.5
+#  cpu_count: 1
+#  provision_script: nothing.sh
+

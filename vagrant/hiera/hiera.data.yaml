@@ -1,0 +1,21 @@
+---
+scaleio::version: '2.0-6035.0.el7'
+scaleio::bootstrap_mdm_name: mdm01   # node that does the cluster bootstrapping
+#scaleio::external_monitoring_user: nobody
+scaleio::system_name: ukcloud
+scaleio::mdms:
+  mdm01:
+    ips: '172.1.0.2'
+  mdm02:
+    ips: '172.1.0.3'
+scaleio::tiebreakers:
+  tb01:
+    ips: '172.1.0.4'
+
+#scaleio::users:
+#  'api_admin':
+#    role: 'Administrator'
+#    password: '5464g123'
+#  'monitor_user':
+#    role: 'Monitor'
+  #    password: '5464g123'

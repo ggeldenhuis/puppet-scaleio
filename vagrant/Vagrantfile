@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'yaml'
+
+unless Vagrant.has_plugin?('vagrant-hosts')
+  puts "vagrant-hosts plugin is missing. Installing..."
+  system("vagrant plugin install vagrant-hosts")
+  puts("Vagrant is stupid lets try again...")
+  exit
+end
+
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "puppetlabs/ubuntu-14.04-64-puppet"
+  config.ssh.forward_agent = true
+
+  servers = YAML.load_file('servers.yaml')
+  servers.each do |servers|
+    config.vm.define servers["name"] do |srv|
+      srv.vm.box = servers["box"]
+      srv.vm.network "private_network", ip: servers["private_ip"]
+#      srv.vm.provision :hosts, :sync_hosts => true
+      # if statement does not seem to work so currently requiring dummy data
+      srv.vm.provision :hosts do |provisioner|
+        provisioner.autoconfigure = true
+        provisioner.sync_hosts    = true
+        provisioner.add_host '10.10.10.10', ['somethingrandom.example.com']
+      end
+
+#      if servers["provision_script"] != ''
+#        srv.vm.provision :shell, path: servers["provision_script"]
+#      end
+
+      srv.vm.provider "vmware_fusion" do |vf|
+        vf.gui = true
+        vf.linked_clone = true
+        vf.memory = servers["ram"]
+        vf.cpus = servers["cpu_count"]
+      end
+      srv.vm.provider "vmware_workstation" do |vw|
+        vw.linked_clone = true
+        vw.memory = servers["ram"]
+        vw.cpus = servers["cpu_count"]
+      end
+
+    end
+  end
+
+end
+
