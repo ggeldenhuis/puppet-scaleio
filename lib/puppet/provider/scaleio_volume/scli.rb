@@ -66,7 +66,7 @@ Puppet::Type.type(:scaleio_volume).provide(:scli) do
 
   def create
     Puppet.debug("Creating volume #{@resource[:name]}")
-    sleep(5) # wait for rebalance
+    sleep(20) # wait for rebalance
     cmd = [] << '--add_volume' << '--protection_domain_name' << @resource[:protection_domain] << '--storage_pool_name' << @resource[:storage_pool] << '--volume_name' << @resource[:name] << '--size_gb' << @resource[:size]
     cmd << '--thin_provisioned' if @resource[:type] == 'thin'
     scli(*cmd)
