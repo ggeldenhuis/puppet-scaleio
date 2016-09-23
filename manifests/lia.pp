@@ -10,7 +10,7 @@ class scaleio::lia{
   }
 
   # only versionlock package
-  package_verifiable{'EMC-ScaleIO-lia':
+  package{'EMC-ScaleIO-lia':
     version        => $scaleio::version,
     manage_package => false,
     require        => Package['numactl'],
@@ -22,7 +22,7 @@ class scaleio::lia{
     environment => [ "TOKEN=${scaleio::password}" ],
     tag         => 'scaleio-install',
     unless      => "rpm -q 'EMC-ScaleIO-lia${real_version}'",
-    require     => Package_verifiable::Yum::Versionlock['EMC-ScaleIO-lia']
+    require     => Package['EMC-ScaleIO-lia']
   } ->
   service{'lia':
     ensure => running,

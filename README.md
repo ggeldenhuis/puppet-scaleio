@@ -36,9 +36,6 @@ It is expected that the following RPM packages are available in a repository so 
 - EMC-ScaleIO-sds
 - EMC-ScaleIO-lia
 
-### Version locking
-The puppet module locks the versions of the RPMs using the yum-versionlock plugin. This prevents an unintended upgrade of the ScaleIO RPMs by running `yum update``
-
 ### Components
 Per node one or many of the following components can be specified and thus will installed. The MDM component will be installed automatically on the corresponding nodes based on the IP address.
 ```yaml
@@ -55,7 +52,7 @@ The order during the bootstrapping is important, it needs to be as follows:
   1. run puppet on secondary MDMs and tiebreakers (install & configure MDM package)
   2. run puppet on all SDS
 2. Bootstrap cluster on primary, thus
-  1. run puppet on the bootstrap node 
+  1. run puppet on the bootstrap node
 
 ```yaml
 scaleio::version: '2.0-6035.0.el7'
@@ -80,7 +77,7 @@ scaleio::tiebreakers:
 
 #### Consul
 This module can make use of an exsting consul cluster to manage the bootstrap ordering.
-Thus set the parameter 
+Thus set the parameter
 ```yaml
 scaleio::use_consul: true
 ```
@@ -211,12 +208,12 @@ scaleio::external_monitoring_user: false    # name of a linux user that shall ge
 
 ## Primary MDM switch
 The ScaleIO configuration will always take place on the primary MDM. This means if the primary MDM switches, the ScaleIO configuration in the next Puppet run will be applied there.
-Exception: bootstrapping. This means if puppet runs on the 'bootstap node' and there is no ScaleIO installed, it will bootstrap a new cluster. 
+Exception: bootstrapping. This means if puppet runs on the 'bootstap node' and there is no ScaleIO installed, it will bootstrap a new cluster.
 
 ## ScaleIO upgrade
 Proceed with the following steps:
 
-1. Install the 'lia' component on all ScaleIO nodes using this puppet module (`scaleio::components: ['lia']`). 
+1. Install the 'lia' component on all ScaleIO nodes using this puppet module (`scaleio::components: ['lia']`).
 2. Disable Puppet
 3. Upgrade the installation manager
 4. Do the actual upgrade using the installation manager
@@ -227,6 +224,80 @@ Proceed with the following steps:
 This module uses a script called 'scli_wrap.sh' for executing scli commands. That wrapper script basically does a login, executes the command and does a logout at the end.
 To avoid race condition, there is a locking mechanism around those three commands.
 As a byproduct this puppet module creates a symlink from /usr/bin/si to that wrapper script and adds bash completion to it. Enjoy running scli commands ;)
+
+## Minimal but complete data example for 3 machine cluster
+
+```yaml
+---
+scaleio::version: '2.0-6035.0.el7'
+scaleio::bootstrap_mdm_name: mdm01   # node that does the cluster bootstrapping
+#scaleio::external_monitoring_user: nobody
+scaleio::system_name: ukcloud
+scaleio::mdms:
+  mdm01:
+    ips: '172.1.0.2'
+  mdm02:
+    ips: '172.1.0.3'
+scaleio::tiebreakers:
+  tb01:
+    ips: '172.1.0.4'
+
+scaleio::storage_pools:
+  'pdo:pool1':                  # ${protection domain}:${pool name}
+    spare_policy: 34%
+    ramcache: 'enabled'
+    zeropadding: true
+
+scaleio::protection_domains:
+  - 'pdo'
+
+scaleio::sds_defaults:
+  protection_domain: 'pdo'
+  pool_devices:
+    'pool1':
+      - '/var/scaleio.device'
+
+scaleio::sds:
+  'sds-1':
+    ips: ['172.1.0.2']
+  'sds-2':
+    ips: ['172.1.0.3']
+  'sds-3':
+    ips: ['172.1.0.4']
+
+scaleio::sdcs:
+  '172.1.0.2':
+    desc: 'sdc-1'
+  '172.1.0.3':
+    desc: 'sdc-2'
+  '172.1.0.4':
+    desc: 'sdc-3'
+
+scaleio::volumes:
+  'volume-1':
+    protection_domain: pdo
+    storage_pool: pool1
+    size: 8
+    type: thin
+    sdc_nodes:
+      - sdc-1
+      - sdc-2
+      - sdc-3
+```
+To use this you will need to create the file that ScaleIO uses a a device. The
+file can be created by running ```truncate -s 500GB /var/scaleio.device```. You
+can make it any size since it does not actually take up any disk space. Once
+the file is created run: ```puppet apply install.pp --hiera_config=hiera.config.yaml```
+on all the nodes. Start with mdm02, followed by tb01 and then mdm01.
+
+install.pp:
+```puppet
+class { 'scaleio':
+  version    => '2.0-6035.0.el7',
+  components => ['sdc', 'sds'],
+}
+```
+The hiera.config.yaml file should just point puppet to the hiera data file.
 
 
 ## Limitations - OS Support, etc.

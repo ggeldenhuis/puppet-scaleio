@@ -86,12 +86,6 @@ class scaleio(
 
   ensure_packages(['numactl'])
 
-  include ::scaleio::rpmkey
-
-  if $scaleio::use_consul {
-    include ::consul
-  }
-
   # extract all local ip addresses of all interfaces
   if $::interfaces {
     $interface_names = split($::interfaces, ',')
@@ -107,6 +101,7 @@ class scaleio(
 
       # check whether one of the local IPs matches with one of the defined MDM IPs
       # => if so, install MDM on this host
+      notice($mdms)
       $mdms_first_ips = scaleio_get_first_mdm_ips($mdms, 'ips')
       $current_mdm_ips = any2array(intersection($mdms_first_ips, $interfaces_addresses))
       $current_mdm_ip = $current_mdm_ips[0]

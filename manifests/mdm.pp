@@ -17,7 +17,7 @@ class scaleio::mdm {
       owner   => 'root',
       group   => 'root',
       mode    => '0600',
-      require => Package_verifiable['EMC-ScaleIO-mdm'];
+      require => Package['EMC-ScaleIO-mdm'];
     $scli_wrap:
       content => template('scaleio/scli_wrap.sh.erb'),
       owner   => 'root',
