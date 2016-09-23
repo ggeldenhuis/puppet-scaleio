@@ -12,6 +12,48 @@ scaleio::tiebreakers:
   tb01:
     ips: '172.1.0.4'
 
+scaleio::storage_pools:
+  'pdo:pool1':                  # ${protection domain}:${pool name}
+    spare_policy: 34%
+    ramcache: 'enabled'
+    zeropadding: true
+
+scaleio::protection_domains:
+  - 'pdo'
+
+scaleio::sds_defaults:
+  protection_domain: 'pdo'
+  pool_devices:
+    'pool1':
+      - '/var/scaleio.device'
+
+scaleio::sds:
+  'sds-1':
+    ips: ['172.1.0.2']
+  'sds-2':
+    ips: ['172.1.0.3']
+  'sds-3':
+    ips: ['172.1.0.4']
+
+scaleio::sdcs:
+  '172.1.0.2':
+    desc: 'sdc-1'
+  '172.1.0.3':
+    desc: 'sdc-2'
+  '172.1.0.4':
+    desc: 'sdc-3'
+
+scaleio::volumes:
+  'volume-1':
+    protection_domain: pdo
+    storage_pool: pool1
+    size: 8
+    type: thin
+    sdc_nodes:
+      - sdc-1
+      - sdc-2
+      - sdc-3
+
 #scaleio::users:
 #  'api_admin':
 #    role: 'Administrator'

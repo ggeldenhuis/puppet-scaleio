@@ -7,5 +7,7 @@ cd /etc/puppetlabs/code/environments/production/modules
 tar xzf /vagrant/puppet-scaleio.tgz
 mv puppet-scaleio scaleio
 
-ln -s /vagrant/rpms /root/rpms
+if [ ! -L '/root/rpms' ]; then
+  ln -s /vagrant/rpms /root/rpms
+fi
 cp /vagrant/rpms/scaleio.repo /etc/yum.repos.d/

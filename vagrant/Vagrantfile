@@ -28,18 +28,18 @@ Vagrant.configure(2) do |config|
         provisioner.add_host '10.10.10.10', ['somethingrandom.example.com']
       end
 
-#      if servers["provision_script"] != ''
-#        srv.vm.provision :shell, path: servers["provision_script"]
-#      end
+      if servers["provision_script"] != ''
+        srv.vm.provision :shell, path: servers["provision_script"]
+      end
 
       srv.vm.provider "vmware_fusion" do |vf|
         vf.gui = true
-        vf.linked_clone = true
+        vf.linked_clone = false
         vf.memory = servers["ram"]
         vf.cpus = servers["cpu_count"]
       end
       srv.vm.provider "vmware_workstation" do |vw|
-        vw.linked_clone = true
+        vw.linked_clone = false
         vw.memory = servers["ram"]
         vw.cpus = servers["cpu_count"]
       end
@@ -48,4 +48,3 @@ Vagrant.configure(2) do |config|
   end
 
 end
-
